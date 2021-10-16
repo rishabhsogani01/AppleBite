@@ -1,0 +1,22 @@
+- hosts: webserver
+  become: true
+  become_user: root
+  tasks:
+  - name: Install git docker httpd
+    yum: name={{item}} state=present
+    loop:
+    - git
+    - docker
+    - httpd
+    - python
+  - name: Start docker, httpd
+    service: name={{item}} state=started
+    loop:
+    - docker
+    - httpd
+  - name: Clone repo from the GitHub
+    git: repo=https://github.com/rishabhsogani01/AppleBite.git dest=/tmp/gitrepo
+  - name: Change directory and build dockerfile
+    command: chdir=/tmp/gitrepo/project1_certi/website docker build -t myimage:ansible .
+  - name: Run the Image to lunch a container
+    command : docker run -itd -P myimage:ansible
